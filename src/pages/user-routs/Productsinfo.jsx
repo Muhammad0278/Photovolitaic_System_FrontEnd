@@ -2,87 +2,117 @@ import React from 'react'
 import Base from '../../components/Base'
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { Modal, Table, Button, Container, Form, FormGroup, Input, Label, Row, Col, Card, CardHeader, CardBody, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import { CardTitle, CardSubtitle, CardText, Modal, Table, Button, Container, Form, FormGroup, Input, Label, Row, Col, Card, CardHeader, CardBody, ModalHeader, ModalBody, ModalFooter, Alert } from 'reactstrap';
 //import { AddProject, GetAllProjects } from '../../services/user-service';
 import { getCurrentUserDetail, isLoggedIn } from '../../auth';
-import { AddProduct, AddProject, DeleteProjects, GetAllProducts, GetAllProjects, GetByProjectsID, UpdateProjects } from '../../services/Product-service';
+import { AddProduct,  DeleteProducts, GetAllProjects, GetProductsByProjectsID, GetSelectedProducts } from '../../services/Product-service';
 import axios from 'axios';
 
+const UserData = getCurrentUserDetail();
 const Productinfo = () => {
     const [lists, setList] = useState([]);
+
     const [modal, setModal] = useState(false);
-    // const [items,setItems] = React.useState([
-    //     // {
-    //     //     label: "Luke Skywalker",
-    //     //     value: "Luke Skywalker"
-    //     // },
-    //     // { label: "C-3PO", value: "C-3PO" },
-    //     // { label: "R2-D2", value: "R2-D2" }
-    // ]);
+    // State variable to keep track of all the expanded rows
+    // By default, nothing expanded. Hence initialized with empty array.
+    const [expandedRows, setExpandedRows] = useState([]);
+
+    // State variable to keep track which row is currently expanded.
+    const [expandState, setExpandState] = useState({});
     const [loading, setLoading] = useState(true);
-  const [items, setItems] = useState([
-    { label: "Loading .........", value: "" }
-  ]);
+    const [productloading, setProductLoading] = useState(true);
+    const [region, setRegion] = useState("");
+    const [items, setItems] = useState([
+        { label: "Loading .........", value: "" }
+    ]);
+    const [productitems, setProductItems] = useState([]);
     const toggle = () => setModal(!modal);
 
-    const UserData = getCurrentUserDetail();
+    //const UserData = getCurrentUserDetail();
     const [data, setData] = useState({
         UserID: UserData.Id,
         UserName: UserData.UserName,
         ProductID: '', ProductName: '', ProjectID: '', ProjectName: '',
-        Manufacturer: '', Wattage: '', Efficiency: '', WarrantyYears: '', Price: '', Description: '',
-        Latitude: '', Longitude: ''
+
+
     });
-    const [editdata, setEditData] = useState({
-        UserID: UserData.Id,
-        UserName: UserData.UserName,
-        ProductID: '', ProductName: '', ProjectID: '', ProjectName: '',
-        Manufacturer: '', Wattage: '', Efficiency: '', WarrantyYears: '', Price: '', Description: '',
-        Latitude: '', Longitude: ''
-    });
+  
 
 
     useEffect(() => {
         //console.log(data)
     }, [data])
-    useEffect(() => {
-        //console.log(data)
-    }, [editdata])
+  
     useEffect(() => {
 
-        (async () => await _Load(data) )();
+        (async () => await _Load(UserData.Id))();
 
     }, [])
     useEffect(() => {
 
-        (async () => await     _LoadSelectProjects( UserData.Id) )();
+        (async () => await _LoadSelectProjects(UserData.Id))();
 
     }, [])
-    const handleChange = (event, property) => {
-        //setData({...data,[property]:event.target.value});
-        setData({ ...data, [property]: event.target.value })
-    };
-    const handleEditChange = (event, property) => {
+ 
+    const handleProjectChange = (event, property) => {
         debugger
         //setData({...data,[property]:event.target.value});
-        setEditData({ ...editdata, [property]: event.target.value })
+        // let val= item.value;
+        console.log(event)
+        var index = event.nativeEvent.target.selectedIndex;
+        let selectedtext = event.nativeEvent.target[index].text;
+
+        setData({...data,
+            ProjectID: event.target.value,
+            ProjectName: selectedtext
+        })
+        GetProductsByProjectsID(event.target.value).then((resp) => {
+            debugger
+            if (resp !== "") {
+                var repsondata = JSON.parse(resp)
+                // console.log(repsondata)
+                if (repsondata.Code == 200) {
+                  //  setProductItems(resp.data)
+                    //setItems(repsondata.data.map(({ ProjectID, ProjectName }) => ({ label: ProjectName, value: ProjectID })));
+                    setProductItems(repsondata.data.map(({ ProductID, ProductName }) => ({ label: ProductName, value: ProductID })));
+                    productloading(false);
+
+                    // toggle();
+                }
+            }
+
+        }).catch((error) => {
+            console.log('error')
+
+        })
+
+    };
+    const handleProductChange = (event, property) => {
+        debugger
+        //setData({...data,[property]:event.target.value});
+        // let val= item.value;
+        console.log(event)
+        var index = event.nativeEvent.target.selectedIndex;
+        let selectedtext = event.nativeEvent.target[index].text;
+
+        setData({
+            ...data,
+            ProductID: event.target.value,
+            ProductName: selectedtext
+        })
+
+
     };
 
     const resetData = () => {
         setData({
 
-            ProductID: '', ProductName: '', ProjectID: '', ProjectName: '',
-            Manufacturer: '', Wattage: '', Efficiency: '', WarrantyYears: '', Price: '', Description: ''
-            , Latitude: '', Longitude: ''
+            UserID:UserData.Id,
+            UserName: UserData.UserName,  ProductID: '', ProductName: '', ProjectID: '', ProjectName: '',
+          
         })
     }
-    const resetEditData = () => {
-        setEditData({
-            ProductID: '', ProductName: '', ProjectID: '', ProjectName: '',
-            Manufacturer: '', Wattage: '', Efficiency: '', WarrantyYears: '', Price: '', Description: '',
-            Latitude: '', Longitude: ''
-        })
-    }
+
     const submitForm = ((event) => {
         event.preventDefault()
         console.log(data);
@@ -102,186 +132,113 @@ const Productinfo = () => {
                 console.log(resp)
                 toast.success("Project Information is Added successfully !!");
                 resetData();
-                _Load(data);
+                _Load(data.UserID);
             }).catch((error) => {
                 console.log('error')
 
             })
 
     })
-    const submitEditForm = ((event) => {
-        event.preventDefault()
-        console.log(editdata);
-        if (editdata.ProjectName.trim() === '') {
-            toast.error('Project Name Required !!');
-            return;
-        }
 
-        // call server api
-        UpdateProjects(editdata)
-            .then((resp) => {
-                console.log(resp)
-                toast.success("Project Information is Updated successfully !!");
-                resetEditData();
-                document.getElementById('closeButton').click();
-                _Load(data);
-            }).catch((error) => {
-                console.log('error')
-
-            })
-
-    })
     function _Load(data) {
-        GetAllProducts(data).then((resp) => {
-            setList(resp.data)
-          
+        console.log(data)
+       
+        GetSelectedProducts(data).then((resp) => {
+            debugger
+            var repsondata = JSON.parse(resp)
+            if (repsondata.Code == 200) {
+            setList(repsondata.data)
+            }
+
         }).catch((error) => {
             console.log('error')
 
         })
+    
+
+
     }
     function _LoadSelectProjects(UserID) {
-        //console.log(data);
-        // axios({
-        //     url: 'https://localhost:44324//api/Products/GetProject?UserID='+dataobj,
-        //     method: 'get',
-          
-            
-        //  })
-        //  .then(response => {
-        //     console.log(response)
-        //  }) 
-        //  .catch(err => {
-        //     console.log(err);
-        //  });
-        GetAllProjects(UserID).then((resp) => {
-            console.log(resp.data)
-            if(resp.status ==200)
-            {
-          //var repsondata = JSON.parse(resp.data)
-          setItems(resp.data.map(({ ProjectID,ProjectName }) => ({ label: ProjectName, value: ProjectID })));
-          setLoading(false);
-        //setItems({lable:resp.data.ProjectName,value:resp.data.ProductID})
-        console.log(items)
+         GetAllProjects(UserID).then((resp) => {
+            // console.log(resp.data)
+            var repsondata = JSON.parse(resp)
+            if (repsondata.Code == 200) {
+                setItems(repsondata.data.map(({ ProjectID, ProjectName }) => ({ label: ProjectName, value: ProjectID })));
+                setLoading(false);
+
             }
-        }).catch((error) => {
-            console.log('error')
-
-         })
-    }
-    async function testGetaxios(id) {
-        try {
-
-            let res = await axios.get('https://localhost:44324/api/Projects/GetbyProject', {
-                params: { _ProjectID: id }
-            });
-            if (res.data !== "") {
-                var repsondata = JSON.parse(res.data)
-                if (repsondata.Code == 200) {
-                    let ProjectID = repsondata.data.ProjectID;
-                    let ProjectName = repsondata.data.ProjectName;
-                    let OwnerName = repsondata.data.OwnerName;
-                    let ContactEmail = repsondata.data.ContactEmail;
-                    let ContactPhone = repsondata.data.ContactPhone;
-                    let Description = repsondata.data.Description;
-                    // setEditData(editdata => [...editdata, repsondata.data]);
-                    setEditData({
-                        ProjectID: ProjectID,
-                        ProjectName: ProjectName,
-                        OwnerName: OwnerName,
-                        ContactEmail: ContactEmail,
-                        ContactPhone: ContactPhone,
-                        Description: Description
-                    })
-                    console.log(editdata)
-                }
-            }
-        }
-        catch (error) {
-            fail(error);
-        };
-    }
-    function success(res) {
-        console.log(res.data[0][0].email);
-    }
-    function fail(error) {
-        console.log(error);
-    }
-    const handleEdit = (id) => {
-
-        console.log(id)
-        // testaxios(id)
-        GetByProjectsID(id).then((resp) => {
-            if (resp !== "") {
-                var repsondata = JSON.parse(resp)
-                // console.log(repsondata)
-                if (repsondata.Code == 200) {
-
-                    setEditData
-                        ({
-                            ProjectID: repsondata.data.ProjectID,
-                            ProjectName: repsondata.data.ProjectName,
-                            OwnerName: repsondata.data.OwnerName,
-                            ContactEmail: repsondata.data.ContactEmail,
-                            ContactPhone: repsondata.data.ContactPhone,
-                            Description: repsondata.data.Description
-                        })
-                    toggle();
-                }
-            }
-
         }).catch((error) => {
             console.log('error')
 
         })
     }
 
+
     const handleDelete = (id) => {
+        // isRowExpanded ? (obj[ProjectID] = false) : (obj[ProjectID] = true);
 
         if (window.confirm("Are you sure to delete this record") === true) {
-            DeleteProjects(id)
+            DeleteProducts(id)
                 .then((resp) => {
                     console.log(resp)
-                    toast.success("Project Information is Delete successfully !!");
+                    toast.success("Product Information is Delete successfully !!");
                     resetData();
-                    _Load(data);
+                    setList([]);
+                    _Load(data.UserID);
                 }).catch((error) => {
                     console.log('error')
 
                 })
         }
     }
+    const handleEpandRow = (event, ID) => {
+        debugger
+        const currentExpandedRows = expandedRows;
+        const isRowExpanded = currentExpandedRows.includes(ID);
+
+        let obj = {};
+        isRowExpanded ? (obj[ID] = false) : (obj[ID] = true);
+        setExpandState(obj);
+
+        // If the row is expanded, we are here to hide it. Hence remove
+        // it from the state variable. Otherwise add to it.
+        const newExpandedRows = isRowExpanded ?
+            currentExpandedRows.filter(ID => ID !== ID) :
+            currentExpandedRows.concat(ID);
+
+        setExpandedRows(newExpandedRows);
+    }
 
     //console.log(lists);
     return (
         <Base>
 
-            <Row className='mt-2'>
-                <Col sm={{ size: 10, offset: 1 }}>
-                    <h3 className='text-center'>Product Information</h3>
-
+            <Row className='px-5'>
+            
+           
+                <Col className='mt-4' sm={{ size: 12}}>
+                <Col style={{backgroundColor: '#cfe2ff', paddingTop: 5,paddingBottom: 5}} >
+               <h3 className='text-center'>Product Information</h3>
+            </Col>
+            <Col  style={{border: '1.5px solid #cfe2ff',}} className="px-3" md={12}>
                     <Form className='' onSubmit={submitForm}>
                         <Row>
+                            {/* <img src='src/Images/Q_CELLS.jpg' alt="myprofilepic"/> */}
+                            <img src={'//Images/Q_CELLS.jpg'} />
+                            <image src='src/Images/Q_CELLS.jpg'></image>
                             <Col md={6}>
                                 <FormGroup>
-                                    <Label for="ProjectName">
-                                        Name
-                                    </Label>
-                                  
-                                    <Input
-                                        id="ProjectName"
-                                        name="ProjectName"
-                                        placeholder="Project Name"
-                                        type="select"
-                                        onChange={(e) => handleChange(e, 'ProjectName')}
-                                        value={data.ProjectName}
-                                    >
+                                    <Label for="ProjectName">   Name  </Label>
+                                    <Input id="ProjectName" name="ProjectName" placeholder="Project Name"
+                                        type="select" onChange={(chioce) => { handleProjectChange(chioce, 'ProductName') }}
+                                        value={data.ProjectID}  
+                                        
+                                        >
+                                              <option disabled value="">
+                                               Select an option
+                                        </option>
                                         {items.map(item => (
-                                           
-                                            <option
-                                                key={item.value}
-                                                value={item.value}
-                                            >
+                                            <option key={item.value} value={item.value}>
                                                 {item.label}
                                             </option>
                                         ))}
@@ -290,145 +247,22 @@ const Productinfo = () => {
                             </Col>
                             <Col md={6}>
                                 <FormGroup>
-                                    <Label for="ProductName">
-                                        Product Name
-                                    </Label>
-                                    <Input
-                                        id="ProductName"
-                                        name="ProductName"
-                                        placeholder="Product Name"
-                                        type="text"
-                                        onChange={(e) => handleChange(e, 'ProductName')}
-                                        value={data.ProductName}
-                                    />
+                                    <Label for="ProductName">  Product Name </Label>
+                                    <Input id="ProductName" name="ProductName" placeholder="Project Name"
+                                        type="select" onChange={(chioce) => { handleProductChange(chioce, 'ProductName') }}
+                                        value={data.ProductID}  >
+                                        <option disabled value="">
+                                            Select an option
+                                        </option>
+                                        {productitems.map(item => (
+                                            <option key={item.value} value={item.value} >
+                                                {item.label}
+                                            </option>
+                                        ))}
+                                    </Input>
                                 </FormGroup>
                             </Col>
-                            <Col md={6}>
-                                <FormGroup>
-                                    <Label for="Manufacturer">
-                                        Manufacturer
-                                    </Label>
-                                    <Input
-                                        id="Manufacturer"
-                                        name="Manufacturer"
-                                        placeholder="Manufacturer"
-                                        type="text"
-                                        onChange={(e) => handleChange(e, 'Manufacturer')}
-                                        value={data.Manufacturer}
-                                    />
-                                </FormGroup>
-                            </Col>
-                            <Col md={6}>
-                                <FormGroup>
-                                    <Label for="Wattage">
-                                        Wattage
-                                    </Label>
-                                    <Input
-                                        id="Wattage"
-                                        name="Wattage"
-                                        placeholder="Wattage"
-                                        type="Wattage"
-                                        onChange={(e) => handleChange(e, 'Wattage')}
-                                        value={data.Wattage}
-                                    />
-                                </FormGroup>
-                            </Col>
-                            <Col md={4}>
 
-                                <FormGroup>
-                                    <Label for="Efficiency">
-                                        Efficiency
-                                    </Label>
-                                    <Input
-                                        id="Efficiency"
-                                        name="Efficiency"
-                                        placeholder="Efficiency"
-                                        type="text"
-                                        onChange={(e) => handleChange(e, 'Efficiency')}
-                                        value={data.Efficiency}
-                                    />
-                                </FormGroup>
-                            </Col>
-                            <Col md={4}>
-
-                                <FormGroup>
-                                    <Label for="WarrantyYears">
-                                        Warranty Years
-                                    </Label>
-                                    <Input
-                                        id="WarrantyYears"
-                                        name="WarrantyYears"
-                                        placeholder="Warranty Years"
-                                        type="text"
-                                        onChange={(e) => handleChange(e, 'WarrantyYears')}
-                                        value={data.WarrantyYears}
-                                    />
-                                </FormGroup>
-                            </Col>
-                            <Col md={4}>
-
-                                <FormGroup>
-                                    <Label for="Price">
-                                        Price
-                                    </Label>
-                                    <Input
-                                        id="Price"
-                                        name="Price"
-                                        placeholder="Price"
-                                        type="text"
-                                        onChange={(e) => handleChange(e, 'Price')}
-                                        value={data.Price}
-                                    />
-                                </FormGroup>
-                            </Col>
-                            <Col md={6}>
-
-                                <FormGroup>
-                                    <Label for="Latitude">
-                                        Latitude
-                                    </Label>
-                                    <Input
-                                        id="Latitude"
-                                        name="Latitude"
-                                        placeholder="Latitude"
-                                        type="text"
-                                        onChange={(e) => handleChange(e, 'Latitude')}
-                                        value={data.Latitude}
-                                    />
-                                </FormGroup>
-                            </Col>
-                            <Col md={6}>
-
-                                <FormGroup>
-                                    <Label for="Longitude">
-                                        Longitude
-                                    </Label>
-                                    <Input
-                                        id="Longitude"
-                                        name="Longitude"
-                                        placeholder="Longitude"
-                                        type="text"
-                                        onChange={(e) => handleChange(e, 'Longitude')}
-                                        value={data.Longitude}
-                                    />
-                                </FormGroup>
-                            </Col>
-                            <Col md={12}>
-
-                                <FormGroup>
-                                    <Label for="description">
-                                        Description
-                                    </Label>
-                                    <Input
-                                        id="description"
-                                        name="description"
-                                        placeholder="Description"
-                                        type="textarea"
-                                        onChange={(e) => handleChange(e, 'Description')}
-                                        value={data.Description}
-                                    />
-                                </FormGroup>
-                            </Col>
                         </Row>
 
 
@@ -439,248 +273,92 @@ const Productinfo = () => {
                         </Container>
                     </Form>
 
-                    <Row className='mt-2'>
-                        <Table
-                            bordered
-                            hover
-                            responsive
-                            striped
-                        >
-                            <thead>
-                                <tr>
-                                    <th hidden>
-                                        #
-                                    </th>
-                                    <th>
-                                        Name
-                                    </th>
-                                    <th>
-                                        Description
-                                    </th>
-
-                                    <th>
-                                        Edit
-                                    </th>
-                                    <th>
-                                        Delete
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
+                    <Row className='mt-5'>
+                        <Container>
+                            
+                            <Row>
+                                <Col sm={12}>
+                                    <Table bordered hover responsive striped variant="dark">
+                                        <thead>
+                                            <tr>
+                                                <th hidden></th>
 
 
-                                {
-                                    lists.map((current, index) => (
-                                        <tr>
-                                            <td hidden>{current.ProjectID}</td>
-                                            <td>{current.ProjectName}</td>
-                                            <td>{current.Description}</td>
-                                            <td>
-                                                <Button color='primary' onClick={() => { handleEdit(current.ProjectID); }}>Edit</Button>
-                                            </td>
-                                            <td>
-                                                <Button color='danger' onClick={() => { handleDelete(current.ProjectID) }}>Delete</Button>
-                                            </td>
-                                        </tr>
+                                                <th>Project Name</th>
+                                                <th>Description</th>
+                                              
+                                                <th>Delete</th>
+                                                <th>Details</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {
+                                                //    lists.map((user) =>
+                                                lists.map((current, index) =>
+                                                    <>
+                                                        <tr key={current.ID} >
 
-                                    ))
-                                }
+                                                            <td hidden>
+                                                                {current.ID}
+                                                            </td>
 
+                                                            <td>{current.ProjectName}</td>
+                                                            <td>{current.Description}</td>
+                                                          
 
-                            </tbody>
-                        </Table>
+                                                            <td>
+                                                                <Button color='danger' onClick={() => { handleDelete(current.ID) }}>Delete</Button>
+                                                            </td>
+                                                            <td>
+                                                                <Button color='primary' variant="link" onClick={event => handleEpandRow(event, current.ID)}>
+                                                                    {
+                                                                        expandState[current.ID] ?
+                                                                            'Hide' : 'Show'
+                                                                    }
+                                                                </Button>
+                                                            </td>
+                                                        </tr>
+                                                        <>
+                                                            {
+                                                                expandedRows.includes(current.ID) ?
+                                                                    <tr>
+
+                                                                        <td colspan="6">
+                                                                            <Row>
+                                                                                <Col md={3}>
+                                                                                    <img width={220} height={150} alt="Sample" src="https://picsum.photos/300/200" />
+                                                                                </Col>
+                                                                                <Col md={9}>
+                                                                                    <h1>{current.ProductName}</h1>
+                                                                                    <ul>
+                                                                                    <li><span><b>Voltage:</b></span> {' '}<span>{current.Wattage}</span></li>
+                                                                                    <li><span><b>Warranty:</b></span> {' '}<span>{current.WarrantyYears} Years</span></li>
+                                                                                    <li><span><b>Price:</b></span> {' '}<span>{current.Price} </span></li>
+                                                                                    <li><span><b>Description:</b></span> {' '}<span>{current.ptDes}</span></li>
+                                                                                    </ul>
+                                                                                </Col>
+
+                                                                            </Row>
+
+                                                                        </td>
+                                                                    </tr> : null
+                                                            }
+                                                        </>
+                                                    </>
+                                                )}
+                                        </tbody>
+                                    </Table>
+                                </Col>
+                            </Row>
+                        </Container>
+
                     </Row>
-
+                    </Col>
 
                 </Col>
             </Row>
 
-            <Modal isOpen={modal} toggle={toggle} >
-                <ModalHeader toggle={toggle}>Project Information</ModalHeader>
-                <ModalBody>
-                    <Row>
-                        <Col md={6}>
-                            <FormGroup>
-                                <Label for="ProjectName">
-                                    Name
-                                </Label>
-                                <Input
-                                    id="EditProjectName"
-                                    name="EditProjectName"
-                                    placeholder="Project Name"
-                                    type="EditProjectName"
-                                    onChange={(e) => handleEditChange(e, 'ProjectName')}
-                                    value={editdata.ProjectName}
-                                />
-                            </FormGroup>
-                        </Col>
-                        <Col md={6}>
-                            <FormGroup>
-                                <Label for="ProjectName">
-                                    Name
-                                </Label>
-                                <Input
-                                    id="EditProjectName"
-                                    name="EditProjectName"
-                                    placeholder="Project Name"
-                                    type="select"
-                                    onChange={(e) => handleEditChange(e, 'ProjectName')}
-                                    value={editdata.ProjectName}
-                                />
-                            </FormGroup>
-                        </Col>
-                        <Col md={6}>
-                            <FormGroup>
-                                <Label for="EditProductName">
-                                    Product Name
-                                </Label>
-                                <Input
-                                    id="EditProductName"
-                                    name="EditProductName"
-                                    placeholder="Product Name"
-                                    type="text"
-                                    onChange={(e) => handleEditChange(e, 'ProductName')}
-                                    value={editdata.ProductName}
-                                />
-                            </FormGroup>
-                        </Col>
-                        <Col md={6}>
-                            <FormGroup>
-                                <Label for="Manufacturer">
-                                    Manufacturer
-                                </Label>
-                                <Input
-                                    id="EditManufacturer"
-                                    name="EditManufacturer"
-                                    placeholder="Manufacturer"
-                                    type="text"
-                                    onChange={(e) => handleEditChange(e, 'Manufacturer')}
-                                    value={editdata.Manufacturer}
-                                />
-                            </FormGroup>
-                        </Col>
-                        <Col md={6}>
-                            <FormGroup>
-                                <Label for="Wattage">
-                                    Wattage
-                                </Label>
-                                <Input
-                                    id="EditWattage"
-                                    name="EditWattage"
-                                    placeholder="Wattage"
-                                    type="Wattage"
-                                    onChange={(e) => handleEditChange(e, 'Wattage')}
-                                    value={editdata.Wattage}
-                                />
-                            </FormGroup>
-                        </Col>
-                        <Col md={4}>
 
-                            <FormGroup>
-                                <Label for="Efficiency">
-                                    Efficiency
-                                </Label>
-                                <Input
-                                    id="EditEfficiency"
-                                    name="EditEfficiency"
-                                    placeholder="Efficiency"
-                                    type="text"
-                                    onChange={(e) => handleEditChange(e, 'Efficiency')}
-                                    value={editdata.Efficiency}
-                                />
-                            </FormGroup>
-                        </Col>
-                        <Col md={4}>
-
-                            <FormGroup>
-                                <Label for="WarrantyYears">
-                                    Warranty Years
-                                </Label>
-                                <Input
-                                    id="EditWarrantyYears"
-                                    name="EditWarrantyYears"
-                                    placeholder="Warranty Years"
-                                    type="text"
-                                    onChange={(e) => handleEditChange(e, 'WarrantyYears')}
-                                    value={editdata.WarrantyYears}
-                                />
-                            </FormGroup>
-                        </Col>
-                        <Col md={4}>
-
-                            <FormGroup>
-                                <Label for="Price">
-                                    Price
-                                </Label>
-                                <Input
-                                    id="EditPrice"
-                                    name="EditPrice"
-                                    placeholder="Price"
-                                    type="text"
-                                    onChange={(e) => handleEditChange(e, 'Price')}
-                                    value={editdata.Price}
-                                />
-                            </FormGroup>
-                        </Col>
-                        <Col md={6}>
-
-                            <FormGroup>
-                                <Label for="Latitude">
-                                    Latitude
-                                </Label>
-                                <Input
-                                    id="EditLatitude"
-                                    name="EditLatitude"
-                                    placeholder="Latitude"
-                                    type="text"
-                                    onChange={(e) => handleEditChange(e, 'Latitude')}
-                                    value={editdata.Latitude}
-                                />
-                            </FormGroup>
-                        </Col>
-                        <Col md={6}>
-
-                            <FormGroup>
-                                <Label for="EditLongitude">
-                                    Longitude
-                                </Label>
-                                <Input
-                                    id="EditLongitude"
-                                    name="EditLongitude"
-                                    placeholder="Longitude"
-                                    type="text"
-                                    onChange={(e) => handleEditChange(e, 'Longitude')}
-                                    value={editdata.Longitude}
-                                />
-                            </FormGroup>
-                        </Col>
-                        <Col md={12}>
-
-                            <FormGroup>
-                                <Label for="description">
-                                    Description
-                                </Label>
-                                <Input
-                                    id="Editdescription"
-                                    name="Editdescription"
-                                    placeholder="Description"
-                                    type="textarea"
-                                    onChange={(e) => handleEditChange(e, 'Description')}
-                                    value={editdata.Description}
-                                />
-                            </FormGroup>
-                        </Col>
-                    </Row>
-                </ModalBody>
-                <ModalFooter>
-                    <Button color="primary" onClick={submitEditForm}>
-                        Update
-                    </Button>
-                    <Button color="secondary" id="closeButton" onClick={toggle}>
-                        Cancel
-                    </Button>
-                </ModalFooter>
-            </Modal>
 
 
         </Base>

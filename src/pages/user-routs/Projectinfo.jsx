@@ -218,10 +218,13 @@ const Projectinfo = () => {
     return (
         <Base>
 
-            <Row className='mt-2'>
-                <Col sm={{ size: 10, offset: 1 }}>
-                    <h3 className='text-center'>Project Information</h3>
-
+            <Row className='px-5'>
+            <Col className='mt-4' sm={{ size: 12}}>
+                    
+                    <Col style={{backgroundColor: '#cfe2ff', paddingTop: 5,paddingBottom: 5}} >
+               <h3 className='text-center'>Project Information</h3>
+            </Col>
+            <Col  style={{border: '1.5px solid #cfe2ff',}} className="px-3" md={12}>
                     <Form className='' onSubmit={submitForm}>
                         <Row>
                             <Col md={6}>
@@ -362,11 +365,11 @@ const Projectinfo = () => {
                         </Table>
                     </Row>
 
-
+                    </Col>
                 </Col>
             </Row>
 
-            <Modal isOpen={modal} toggle={toggle} >
+            <Modal style={{backgroundColor:"cfe2ff !important"}}  isOpen={modal} toggle={toggle} >
                 <ModalHeader toggle={toggle}>Project Information</ModalHeader>
                 <ModalBody>
                     <Row>
@@ -445,7 +448,9 @@ const Projectinfo = () => {
                                     value={editdata.Description}
                                 />
                             </FormGroup>
+                            
                         </Col>
+                        
                     </Row>
                 </ModalBody>
                 <ModalFooter>

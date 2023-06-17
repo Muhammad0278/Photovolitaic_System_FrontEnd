@@ -41,6 +41,10 @@ navigate("/");
               Home
               </NavLink>
             </NavItem>
+            {
+               login && 
+               (
+                <>
             <NavItem>
               <NavLink href="/user/profile-info">
               Profile
@@ -56,6 +60,8 @@ navigate("/");
               Products
               </NavLink>
             </NavItem>
+            </>
+)}
             <NavItem>
               <NavLink href="/Services">
               Services

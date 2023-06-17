@@ -2,7 +2,7 @@ import {  myAxios } from "./helper";
 
 // Project Service
 export const AddProduct=(data)=>{
-    return myAxios.post('/api/Products/InsertProducts',data).then((response)=> response.data);    
+    return myAxios.post('/api/ProductAssignment/InsertProducts',data).then((response)=> response.data);    
 }
 export const GetAllProjects=(data)=>{
     return myAxios.get('/api/Products/GetProject',{
@@ -11,11 +11,15 @@ export const GetAllProjects=(data)=>{
         }
       }).then((response)=> response.data);    
 }
-export const GetAllProducts=(data)=>{
-    return myAxios.post('/api/Projects/GetProjects',data).then((response)=> response.data);    
+export const GetSelectedProducts=(data)=>{
+    return myAxios.get('/api/ProductAssignment/GetSelectedProducts',{
+        params: {
+            UserID: data
+        }
+      }).then((response)=> response.data);    
 }
-export const GetByProjectsID=(data)=>{
-    return  myAxios.get('/api/Projects/GetbyProject',{
+export const GetProductsByProjectsID=(data)=>{
+    return  myAxios.get('/api/Products/GetProducts',{
         params: {
             _ProjectID: data
         }
@@ -25,10 +29,10 @@ export const GetByProjectsID=(data)=>{
 export const UpdateProjects=(data)=>{
     return myAxios.put('/api/Projects/UpdateProject',data).then((response)=> response.data);    
 }
-export const DeleteProjects=(data)=>{
-    return myAxios.delete('/api/Projects/DeleteProject',{
+export const DeleteProducts=(data)=>{
+    return myAxios.delete('/api/ProductAssignment/DeleteSelectedProducts',{
         params: {
-            _ProjectID: data
+            ID: data
         }
       }).then((response)=> response.data);    
 }
