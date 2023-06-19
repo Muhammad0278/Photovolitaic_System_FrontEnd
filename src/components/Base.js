@@ -1,22 +1,38 @@
 import { Row } from "reactstrap";
 import CustomNavbar from "./Navbar";
+import SideMenu from "./SideMenu";
+import { useState } from "react";
+import "bootstrap/dist/css/bootstrap.min.css";
+import SideBar from "./sidebar/SideBar";
+import Topbar from "./content/Topbar";
+
+
+// import SideBar from "./src/components/sidebar/SideBar";
+
 
 
 const Base=({title="Welcom",children})=>{
-
+    const [sidebarIsOpen, setSidebarOpen] = useState(true);
+    const toggleSidebar = () => setSidebarOpen(!sidebarIsOpen);
+  
     return(
-           <Row>
-           <div className="container-fluid" p-0 m-0>
-           
-            <CustomNavbar />
-         
-            <Row className='mt-5'>
+      
+        <div className="container-fluid mt-5"   p-0 m-0>
+        <div className="row">
+          <div className="col-md-2" style={{paddingLeft:0}}>
+          <CustomNavbar />
+        
+          {/* <SideBar toggle={toggleSidebar} isOpen={sidebarIsOpen} /> */}
+        
+          {/* <Content toggleSidebar={toggleSidebar} sidebarIsOpen={sidebarIsOpen} /> */}
+       
+          </div>
+          <div className="col-md-10">
+            {/* Main content */}
             {children}
-            </Row>
-
-            
-           </div>
-           </Row>
+          </div>
+        </div>
+      </div>
     );
 };
 

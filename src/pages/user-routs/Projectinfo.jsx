@@ -218,7 +218,7 @@ const Projectinfo = () => {
     return (
         <Base>
 
-            <Row className='px-5'>
+            <Row >
             <Col className='mt-4' sm={{ size: 12}}>
                     
                     <Col style={{backgroundColor: '#cfe2ff', paddingTop: 5,paddingBottom: 5}} >

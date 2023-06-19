@@ -213,7 +213,7 @@ const Productinfo = () => {
     return (
         <Base>
 
-            <Row className='px-5'>
+            <Row className=''>
             
            
                 <Col className='mt-4' sm={{ size: 12}}>
@@ -224,8 +224,8 @@ const Productinfo = () => {
                     <Form className='' onSubmit={submitForm}>
                         <Row>
                             {/* <img src='src/Images/Q_CELLS.jpg' alt="myprofilepic"/> */}
-                            <img src={'//Images/Q_CELLS.jpg'} />
-                            <image src='src/Images/Q_CELLS.jpg'></image>
+                          
+                            {/* <image src='src/Images/Q_CELLS.jpg'></image> */}
                             <Col md={6}>
                                 <FormGroup>
                                     <Label for="ProjectName">   Name  </Label>
@@ -326,7 +326,8 @@ const Productinfo = () => {
                                                                         <td colspan="6">
                                                                             <Row>
                                                                                 <Col md={3}>
-                                                                                    <img width={220} height={150} alt="Sample" src="https://picsum.photos/300/200" />
+                                                                                {/* <img  width={220} height={150}  src={require(current.ImagePath)}  alt="logo"   /> */}
+                                                                                    <img  width={220} height={150}  src={require('./../../Images/Q_CELLS.jpg')}  alt="logo"   />
                                                                                 </Col>
                                                                                 <Col md={9}>
                                                                                     <h1>{current.ProductName}</h1>
