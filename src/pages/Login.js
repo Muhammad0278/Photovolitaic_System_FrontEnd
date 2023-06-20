@@ -34,10 +34,10 @@ login(loginDetail).then((data) =>{
   console.log(data)
   if(data.status ===200)
   {
-  toast.success("User is resgistered successfully !!");
+  toast.success("User is Login successfully !!");
   handleReset();
   doLogin(data.user,()=>{
-    console.log("user data saved");
+    console.log(data.user);
     navigate("/user/dashboard")
   });
 }

@@ -19,11 +19,7 @@ export const GetSelectedProducts=(data)=>{
       }).then((response)=> response.data);    
 }
 export const GetProductsByProjectsID=(data)=>{
-    return  myAxios.get('/api/Products/GetProducts',{
-        params: {
-            _ProjectID: data
-        }
-      }).then((response)=> response.data);    
+    return  myAxios.get('/api/Products/GetProducts').then((response)=> response.data);    
 
 }
 export const UpdateProjects=(data)=>{

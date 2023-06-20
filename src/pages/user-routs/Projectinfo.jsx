@@ -43,11 +43,7 @@ const Projectinfo = () => {
     useEffect(() => {
         //console.log(data)
     }, [editdata])
-    useEffect(() => {
-
-        (async () => await _Load(data))();
-
-    }, [])
+    useEffect(() => {  (async () => await _Load(data))();}, [])
     const handleChange = (event, property) => {
         //setData({...data,[property]:event.target.value});
         setData({ ...data, [property]: event.target.value })

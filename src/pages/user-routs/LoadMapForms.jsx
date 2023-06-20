@@ -9,6 +9,9 @@ const LoadMapForm = ({ location }) => {
 
   return (
     <Form onSubmit={handleSubmit}>
+      
+      
+      
       <FormGroup>
         <Label for="locationName">Location Name</Label>
         <Input
