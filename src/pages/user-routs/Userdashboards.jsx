@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react'
 import Base from '../../components/Base'
-import {Container, Modal,Row, Col, Form, FormGroup, Label, Input, CardBody, Card, CardTitle, CardText, CardHeader, CardGroup, ButtonGroup, Button, Table, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
+import { Container, Modal, Row, Col, Form, FormGroup, Label, Input, CardBody, Card, CardTitle, CardText, CardHeader, CardGroup, ButtonGroup, Button, Table, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
 import LoadMap from './LoadMap'
 import { getCurrentUserDetail } from '../../auth';
-import { AddProduct, GetAllProjects, GetProductsByProjectsID } from '../../services/Product-service';
-import Leaflet from "leaflet"
+import { AddProduct, DeleteProducts, GetAllProjects, GetProductsByProjectsID } from '../../services/Product-service';
+import Leaflet, { marker } from "leaflet"
 import "leaflet/dist/leaflet.css"
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet"
 import markerIcon from "leaflet/dist/images/marker-icon.png"
@@ -23,6 +23,7 @@ Leaflet.Icon.Default.mergeOptions({
 
 const Userdashboards = () => {
   const UserData = getCurrentUserDetail();
+  const [editMode, setEditMode] = useState(false);
   const [modal, setModal] = useState(false);
   const [productitems, setProductItems] = useState([]);
   const toggle = () => setModal(!modal);
@@ -32,8 +33,8 @@ const Userdashboards = () => {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState({
     UserID: UserData.Id,
-    UserName: UserData.UserName,
-    ProductID: '', ProductName: '', ProjectID: '', ProjectName: '',Latitude:'',Longitude:''
+    UserName: UserData.UserName,ID:'',
+    ProductID: '', ProductName: '', ProjectID: '', ProjectName: '', Latitude: '', Longitude: ''
   });
   const Accordiantoggle = (id) => {
     if (open === id) {
@@ -43,27 +44,27 @@ const Userdashboards = () => {
     }
   };
   const mapRef = useRef();
-  const zoom = 16;
+  const zoom = 6;
   const containerStyle = {
     width: "100%", height: "400px"
   }
   const center = {
-    lat: 50.8191139,
-    lng: 12.9376782
+    lat: 51.165691,
+    lng: 10.451526
   }
 
   //=================== Use Effect
   useEffect(() => { (async () => await _LoadSelectProjects(UserData.Id))(); }, [])
   useEffect(() => { (async () => await _LoadProducts())(); }, [])
- useEffect(() => { console.log(markers);}, [markers]);
-  useEffect(() => {(async () => await _Load(data))(); }, [])
+  useEffect(() => { console.log(markers); }, [markers]);
+  useEffect(() => { (async () => await _Load(data))(); }, [])
 
   const handleProjectChange = (event, property) => {
     var index = event.nativeEvent.target.selectedIndex;
     let selectedtext = event.nativeEvent.target[index].text;
     setData({ ...data, ProjectID: event.target.value, ProjectName: selectedtext })
   };
-//====================== Load Select Option
+  //====================== Load Select Option
   function _LoadSelectProjects(UserID) {
 
     GetAllProjects(UserID).then((resp) => {
@@ -73,7 +74,7 @@ const Userdashboards = () => {
         setItems(repsondata.data.map(({ ProjectID, ProjectName }) => ({ label: ProjectName, value: ProjectID })));
         setLoading(false);
         setData({ ...data, ProjectID: repsondata.data[0].ProjectID, ProjectName: repsondata.data[0].ProjectName })
-      
+
       }
     }).catch((error) => {
       console.log('error')
@@ -81,37 +82,50 @@ const Userdashboards = () => {
   }
   function _LoadProducts() {
     GetProductsByProjectsID().then((resp) => {
-        if (resp !== "") {
-            var repsondata = JSON.parse(resp)
-            if (repsondata.Code == 200) {
-                setProductItems(repsondata.data.map(({ ProductID, ProductName }) => ({ label: ProductName, value: ProductID })));
-              //  productloading(false);
-            }
+      if (resp !== "") {
+        var repsondata = JSON.parse(resp)
+        if (repsondata.Code == 200) {
+          setProductItems(repsondata.data.map(({ ProductID, ProductName }) => ({ label: ProductName, value: ProductID })));
+          //  productloading(false);
         }
+      }
 
     }).catch((error) => {
-        console.log('error')
+      console.log('error')
 
     })
-   
-}
 
-//===============Change Event
+  }
+
+  //===============Change Event
   const onStatusChange = ((event, Status) => {
     debugger
     event.preventDefault()
     _Load(Status, data);
   });
   const mapClicked = async (event) => {
+    setEditMode(false)
     console.log(event.latlng.lat, event.latlng.lng)
-    setData({ ...data, Latitude: event.latlng.lat, Longitude: event.latlng.lng })
+    setData({ ...data,ProductID:'',ProductName:'', Latitude: event.latlng.lat, Longitude: event.latlng.lng })
     toggle();
   }
   const markerClicked = (marker, index) => {
-    console.log(marker.Latitude, marker.Longitude)
+    debugger
+    console.log(marker.Latitude, marker.Latitude)
+  //  console.log(marker.position.lat, marker.position.lng)
+    setData({ ...data,ID: marker.ID ,ProductID:marker.ProductID,ProductName:marker.ProductName, Latitude: marker.Latitude, Longitude:marker.Longitude })
+    debugger
+    setEditMode(true)
+   // document.getElementById('btnAdd').style('display:none');
+    toggle();
   }
   const markerDragEnd = (event, index) => {
+    debugger
     console.log(event.lat, event.lng)
+   // setEditMode(true)
+   
+    //setData({ ...data,ProductID:'',ProductName:'', Latitude: event.lat, Longitude: event.lng })
+   // toggle();
   }
 
   function _Load(Status, data) {
@@ -132,51 +146,111 @@ const Userdashboards = () => {
   }
   const resetData = () => {
     setData({
-        UserID: UserData.Id,
-        UserName: UserData.UserName, ProductID: '', ProductName: '', ProjectID: '', ProjectName: '',Latitude:'',Longitude:''
+      UserID: UserData.Id,
+      UserName: UserData.UserName, ProductID: '', ProductName: '', ProjectID: '', ProjectName: '', Latitude: '', Longitude: ''
     })
-}
+  }
   // Model Events
- 
+
   const submitForm = ((event) => {
     debugger
     event.preventDefault()
     console.log(data);
     if (data.ProjectName.trim() === '') {
-        toast.error('Project Name Required !!');
-        return;
+      toast.error('Project Name Required !!');
+      return;
     }
     if (data.ProductName.trim() === '') {
-        toast.error('Product Name Required !!');
-        return;
+      toast.error('Product Name Required !!');
+      return;
     }
- 
+
     // call server api
     AddProduct(data).then((resp) => {
-        console.log(resp)
-        toast.success("Product Information is Added successfully !!");
-        document.getElementById('btnactive').click();
-        setData({
-          UserID: UserData.Id,
-          UserName: UserData.UserName, ProductID: '', ProductName: '', ProjectID: data.ProjectID, ProjectName: data.ProjectName,Latitude:'',Longitude:''
+      console.log(resp)
+      toast.success("Product Information is Added successfully !!");
+      document.getElementById('btnactive').click();
+      setData({
+        UserID: UserData.Id,
+        UserName: UserData.UserName,ID:'0', ProductID: '', ProductName: '', ProjectID: data.ProjectID, ProjectName: data.ProjectName, Latitude: '', Longitude: ''
       })
       //  resetData();
-        document.getElementById('closeButton').click();
-        //_Load(Status, data)
-      
+      document.getElementById('closeButton').click();
+      //_Load(Status, data)
+
     }).catch((error) => {
-        console.log('error')
+      console.log('error')
     })
-})
-const handleChange = (event, property) => {
+  })
+  const handleDeleteMap = (event,id) => {
+    event.preventDefault()
+    debugger
+    console.log(event.target.value);
+    if (data.ProjectName.trim() === '') {
+      toast.error('Project Name Required !!');
+      return;
+    }
+    if (data.ProductName.trim() === '') {
+      toast.error('Product Name Required !!');
+      return;
+    }
+    DeleteProducts(id).then((resp) => {
+      console.log(resp)
+      toast.success("Product Information is Deleted successfully !!");
+      document.getElementById('btnactive').click();
+      setData({
+        UserID: UserData.Id,
+        UserName: UserData.UserName,ID:'0', ProductID: '', ProductName: '', ProjectID: data.ProjectID, ProjectName: data.ProjectName, Latitude: '', Longitude: ''
+      })
+      //  resetData();
+      document.getElementById('closeButton').click();
+      //_Load(Status, data)
+ 
+    }).catch((error) => {
+      console.log('error')
+    })
+  };
+  const handleUpdateMap = (event, property) => {
+    //setData({...data,[property]:event.target.value});
+   // setData({ ...data, [property]: event.target.value })
+   event.preventDefault()
+   console.log(data);
+   if (data.ProjectName.trim() === '') {
+     toast.error('Project Name Required !!');
+     return;
+   }
+   if (data.ProductName.trim() === '') {
+     toast.error('Product Name Required !!');
+     return;
+   }
+
+   // call server api
+   AddProduct(data).then((resp) => {
+     console.log(resp)
+     toast.success("Product Information is Added successfully !!");
+     document.getElementById('btnactive').click();
+     setData({
+       UserID: UserData.Id,
+       UserName: UserData.UserName,ID:'0', ProductID: '', ProductName: '', ProjectID: data.ProjectID, ProjectName: data.ProjectName, Latitude: '', Longitude: ''
+     })
+     //  resetData();
+     document.getElementById('closeButton').click();
+     //_Load(Status, data)
+
+   }).catch((error) => {
+     console.log('error')
+   })
+
+  };
+  const handleChange = (event, property) => {
     //setData({...data,[property]:event.target.value});
     setData({ ...data, [property]: event.target.value })
-};
-const handleProductChange = (event, property) => {
+  };
+  const handleProductChange = (event, property) => {
     var index = event.nativeEvent.target.selectedIndex;
     let selectedtext = event.nativeEvent.target[index].text;
     setData({ ...data, ProductID: event.target.value, ProductName: selectedtext })
-};
+  };
   return (
 
     <Base>
@@ -220,26 +294,23 @@ const handleProductChange = (event, property) => {
                     <FormGroup>
                       <ButtonGroup className="mt-3">
                         <Button id="btnactive" color="success" onClick={event => onStatusChange(event, true)}>    Active Projects </Button>
-                        <Button  id="btndeactive" color="danger" onClick={event => onStatusChange(event, false)}>    Deactive Projects  </Button>
+                        <Button id="btndeactive" color="danger" onClick={event => onStatusChange(event, false)}>    Deactive Projects  </Button>
                       </ButtonGroup>
                     </FormGroup>
                   </Row>
                 </Form>
               </Col>
             </Row>
- 
+
             <MapContainer style={containerStyle} center={center} zoom={zoom} scrollWheelZoom={false} ref={mapRef}>
               <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
               <MapContent onClick={mapClicked} />
               {
-
-                // console.log(markers)
                 markers.map((marker, index) => (
-
                   <MarkerContent key={index} // position={marker.position} 
-                    position={[marker.Latitude, marker.Longitude]}
-                    draggable={false} onMarkerClick={event => markerClicked(marker, index)}
+                    position={[marker.Latitude, marker.Longitude]} markobject={marker}
+                    draggable={true} onMarkerClick={event => markerClicked(marker, index)}
                     onDragEnd={event => markerDragEnd(event, index)} />
                 ))}
             </MapContainer>
@@ -252,7 +323,7 @@ const handleProductChange = (event, property) => {
                     <AccordionItem>
                       <AccordionHeader targetId={index}><h3>{marker.ProductName}</h3></AccordionHeader>
                       <AccordionBody accordionId={index}>
-                      <Table bordered hover responsive striped variant="dark">
+                        <Table bordered hover responsive striped variant="dark">
                           <tbody>
                             <tr>
                               <td colspan="6">
@@ -277,103 +348,99 @@ const handleProductChange = (event, property) => {
                             </tr>
                           </tbody>
                         </Table>
-                       
+
                       </AccordionBody>
                     </AccordionItem>
                   ))}
-
-
               </Accordion>
             </Col>
           </Col>
 
         </Col>
       </Row>
-      <Modal style={{backgroundColor:"cfe2ff !important"}}  isOpen={modal} toggle={toggle} >
-                <ModalHeader toggle={toggle}>Product</ModalHeader>
-                <ModalBody>
-                    <Row>
-                    <Form className='' onSubmit={submitForm}>
-                            <Row>
-                                {/* <img src='src/Images/Q_CELLS.jpg' alt="myprofilepic"/> */}
+      <Modal style={{ backgroundColor: "cfe2ff !important" }} isOpen={modal} toggle={toggle} >
+        <ModalHeader toggle={toggle}>Product</ModalHeader>
+        <ModalBody>
+          <Row>
+            <Form className='' onSubmit={submitForm}>
+              <Row>
+                {/* <img src='src/Images/Q_CELLS.jpg' alt="myprofilepic"/> */}
 
-                                {/* <image src='src/Images/Q_CELLS.jpg'></image> */}
-                               
-                                    {/* <FormGroup>
-                                        <Label for="ProjectName">   Name  </Label>
-                                        <Input id="ProjectName" name="ProjectName" placeholder="Project Name"
-                                            type="select" onChange={(chioce) => { handleProjectChange(chioce, 'ProductName') }}
-                                            value={data.ProjectID}    >
-                                            <option disabled value="">    Select an option   </option>
-                                            {items.map(item => (
-                                                <option key={item.value} value={item.value}>
-                                                    {item.label}
-                                                </option>
-                                            ))}
-                                        </Input>
-                                    </FormGroup> */}
-                              
-                                <Col md={12}>
-                                    <FormGroup>
-                                        <Label for="ProductName">  Product Name </Label>
-                                        <Input id="ProductName" name="ProductName" placeholder="Project Name"
-                                            type="select" onChange={(chioce) => { handleProductChange(chioce, 'ProductName') }}
-                                            value={data.ProductID}  >
-                                            <option disabled value="">
-                                                Select an option
-                                            </option>
-                                            {productitems.map(item => (
-                                                <option key={item.value} value={item.value} >
-                                                    {item.label}
-                                                </option>
-                                            ))}
-                                        </Input>
-                                    </FormGroup>
-                                </Col>
-                                <Col md={6}>
-                                    <FormGroup>
-                                        <Label for="Latitude">
-                                            Latitude
-                                        </Label>
-                                        <Input  id="Latitude"  name="Latitude"   placeholder="Latitude"
-                                            type="text"  onChange={(e) => handleChange(e, 'Latitude')}  value={data.Latitude}
-                                        />
-                                    </FormGroup>
-                                </Col>
-                                <Col md={6}>
-                                    <FormGroup>
-                                        <Label for="Longitude">
-                                            Longitude
-                                        </Label>
-                                        <Input id="Longitude" name="Longitude" placeholder="Longitude"
-                                            type="text" onChange={(e) => handleChange(e, 'Longitude')} value={data.Longitude}  />
-                                    </FormGroup>
-                                </Col>
-                            </Row>
+                {/* <image src='src/Images/Q_CELLS.jpg'></image> */}
 
 
-                            <Container className='text-center'>
-                                <Button color='primary' outlin>
-                                    Add
-                                </Button>
-                                <Button color="secondary" id="closeButton" onClick={toggle}>
-                        Cancel
-                    </Button>
-                            </Container>
-                        </Form>
-                    </Row>
-                </ModalBody>
-                {/* <ModalFooter>
+                <Col md={12}>
+                  <FormGroup>
+                    <Label for="ProductName">  Product Name </Label>
+                    <Input id="ProductName" name="ProductName" placeholder="Project Name"
+                      type="select" onChange={(chioce) => { handleProductChange(chioce, 'ProductName') }}
+                      value={data.ProductID}  >
+                      <option disabled value="">
+                        Select an option
+                      </option>
+                      {productitems.map(item => (
+                        <option key={item.value} value={item.value} >
+                          {item.label}
+                        </option>
+                      ))}
+                    </Input>
+                  </FormGroup>
+                </Col>
+                <Col md={6}>
+                  <FormGroup>
+                    <Label for="Latitude">
+                      Latitude
+                    </Label>
+                    <Input id="Latitude" name="Latitude" placeholder="Latitude"
+                      type="text" onChange={(e) => handleChange(e, 'Latitude')} value={data.Latitude}
+                    />
+                  </FormGroup>
+                </Col>
+                <Col md={6}>
+                  <FormGroup>
+                    <Label for="Longitude">
+                      Longitude
+                    </Label>
+                    <Input id="Longitude" name="Longitude" placeholder="Longitude"
+                      type="text" onChange={(e) => handleChange(e, 'Longitude')} value={data.Longitude} />
+                  </FormGroup>
+                </Col>
+              </Row>
+
+
+              <Container className='text-center'>
+              {editMode ? (
+        <>
+          <Button style={{"margin-right":5}} color='primary' onClick={handleUpdateMap}>Update</Button>
+          <Button style={{"margin-right":5}} color='danger' onClick={(e) => handleDeleteMap(e, data.ID)}>Delete</Button>
+          {/* <Button style={{"margin-right":5}} color='danger' onClick={handleDeleteMap(event,data.ProductID)}>Delete</Button> */}
+        </>
+      ) : (
+        // <button onClick={() => setEditMode(true)}>Add</button>
+        <Button id="btnAdd" style={{"margin-right":5}} color='primary' outlin>
+                  Add
+                </Button>
+      )}
+                
+                <Button color="secondary" id="closeButton" onClick={toggle}>
+                  Cancel
+                </Button>
+              </Container>
+            </Form>
+          </Row>
+        </ModalBody>
+        {/* <ModalFooter>
                     <Button color="primary" >
                     Add
                     </Button>
                   
                 </ModalFooter> */}
-            </Modal>
+      </Modal>
     </Base>
 
   )
 }
+
 const MapContent = ({ onClick }) => {
   const map = useMapEvents({
     click: event => onClick(event)
@@ -382,19 +449,23 @@ const MapContent = ({ onClick }) => {
 }
 
 const MarkerContent = (props) => {
+ 
+ 
   const markerRef = useRef();
   debugger
-  const { position, draggable, onMarkerClick, onDragEnd } = props;
-
-  return <Marker position={position} draggable={draggable}
+  const { position,markobject , draggable, onMarkerClick, onDragEnd } = props;
+ 
+  return <Marker position={position} draggable={draggable} data={marker}
     eventHandlers={{
       click: event => onMarkerClick(event),
       dragend: () => onDragEnd(markerRef.current.getLatLng())
     }} ref={markerRef}  >
-    <Popup maxWidth="100" maxHeight="auto">
-      <b>{position[0]}, {position[1]}</b>
-      <LoadMapForm location={position} />
-    </Popup>
+    {/* <Popup maxWidth="100" maxHeight="auto"> */}
+      {/* <b>{position[0]}, {position[1]}</b>
+      <b>{marker.ID}</b> */}
+     
+      {/* <LoadMapForm location={position} /> */}
+    {/* </Popup> */}
   </Marker>
 }
 export default Userdashboards

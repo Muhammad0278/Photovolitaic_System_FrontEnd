@@ -79,7 +79,7 @@ const CustomNavbar = (args) => {
       <div  className={classNames("sidebar", { "is-open": isOpen })}>
         
         <Nav color="dark" vertical   >
-       
+        <NavbarToggler onClick={toggle} />
           <NavItem>
             <NavLink href="/user/dashboard">
               Home

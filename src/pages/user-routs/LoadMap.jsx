@@ -57,6 +57,7 @@ const LoadMap = ({ Mapdata }) => {
     }
 
     const markerClicked = (marker, index) => {
+        
         console.log(marker.position.lat, marker.position.lng)
     }
 
