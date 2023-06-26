@@ -38,6 +38,11 @@ const Signup = () => {
 
   const submitForm = (event) => {
     event.preventDefault()
+    if(data.Email.trim() ==='' || data.Password.trim() ==='')
+  {
+    toast.error('Email and Password is Required ');
+    return;
+  }
     // call server api
     signUp(data)
       .then((resp) => {

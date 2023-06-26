@@ -26,7 +26,7 @@ const hangleFormSubmit=(event) => {
   console.log(loginDetail);
   if(loginDetail.Email.trim() ==='' || loginDetail.Password.trim() ==='')
   {
-    toast.error('Email and Password is Required !!');
+    toast.error('Email and Password is Required ');
     return;
   }
 login(loginDetail).then((data) =>{
@@ -34,7 +34,7 @@ login(loginDetail).then((data) =>{
   console.log(data)
   if(data.status ===200)
   {
-  toast.success("User is Login successfully !!");
+  toast.success("User is Login successfully");
   handleReset();
   doLogin(data.user,()=>{
     console.log(data.user);
@@ -92,8 +92,9 @@ const handleReset=()=>{
             />
           </FormGroup>
           <Container className='text-center'>
-          <Button color='primary' outlin >Sign In</Button>
+          <Button  style = {{marginRight:'10px', color:'white !important'}} color='primary' outlin >LogIn</Button>
        
+          <Button  outlin ><a color='primary' href="/Signup">SignUp</a></Button>
           </Container>
         
       </Form>

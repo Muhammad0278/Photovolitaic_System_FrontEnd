@@ -310,7 +310,7 @@ const Userdashboards = () => {
                 markers.map((marker, index) => (
                   <MarkerContent key={index} // position={marker.position} 
                     position={[marker.Latitude, marker.Longitude]} markobject={marker}
-                    draggable={true} onMarkerClick={event => markerClicked(marker, index)}
+                    draggable={false} onMarkerClick={event => markerClicked(marker, index)}
                     onDragEnd={event => markerDragEnd(event, index)} />
                 ))}
             </MapContainer>
