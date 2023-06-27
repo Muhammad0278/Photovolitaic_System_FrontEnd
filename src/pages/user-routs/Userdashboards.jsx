@@ -14,6 +14,7 @@ import LoadMapForm from "./LoadMapForms";
 import { GetMapProducts } from "../../services/Map-service";
 import { Accordion, AccordionBody, AccordionHeader, AccordionItem, } from 'reactstrap';
 import { toast } from 'react-toastify';
+import LoadCharts from './LoadCharts';
 
 Leaflet.Icon.Default.mergeOptions({
   iconRetinaUrl: markerRetina,
@@ -31,6 +32,12 @@ const Userdashboards = () => {
   const [markers, setMarkers] = useState([]);
   const [items, setItems] = useState([{ label: "Loading .........", value: "" }]);
   const [loading, setLoading] = useState(true);
+  const chartData = [
+    { date: '2023-06-24', value: 10 },
+    { date: '2023-06-25', value: 5 },
+    { date: '2023-06-26', value: 8 },
+    // Add more data points as needed
+  ];
   const [data, setData] = useState({
     UserID: UserData.Id,
     UserName: UserData.UserName,ID:'',
@@ -74,7 +81,7 @@ const Userdashboards = () => {
         setItems(repsondata.data.map(({ ProjectID, ProjectName }) => ({ label: ProjectName, value: ProjectID })));
         setLoading(false);
         setData({ ...data, ProjectID: repsondata.data[0].ProjectID, ProjectName: repsondata.data[0].ProjectName })
-
+      
       }
     }).catch((error) => {
       console.log('error')
@@ -281,7 +288,8 @@ const Userdashboards = () => {
               <Col md={6} className="pull-right">
                 <Form className='' >
                   <Row className="row-cols-lg-auto align-items-center">
-                    <FormGroup className="mt-4">
+                    <FormGroup className="mt-3">
+                   
                       <Input id="ProjectName" name="ProjectName" placeholder="Project Name"
                         type="select" onChange={(chioce) => { handleProjectChange(chioce, 'ProductName') }}
                         value={data.ProjectID}    >
@@ -293,8 +301,8 @@ const Userdashboards = () => {
                     </FormGroup>
                     <FormGroup>
                       <ButtonGroup className="mt-3">
-                        <Button id="btnactive" color="success" onClick={event => onStatusChange(event, true)}>    Active Projects </Button>
-                        <Button id="btndeactive" color="danger" onClick={event => onStatusChange(event, false)}>    Deactive Projects  </Button>
+                        <Button id="btnactive" color="success" onClick={event => onStatusChange(event, true)}>    Load </Button>
+                        {/* <Button id="btndeactive" color="danger" onClick={event => onStatusChange(event, false)}>    Deactive Projects  </Button> */}
                       </ButtonGroup>
                     </FormGroup>
                   </Row>
@@ -342,6 +350,11 @@ const Userdashboards = () => {
                                     </ul>
                                   </Col>
 
+                                </Row>
+                                <Row>
+                                  <Col>
+                                  <LoadCharts data={chartData} />
+                                  </Col>
                                 </Row>
 
                               </td>
