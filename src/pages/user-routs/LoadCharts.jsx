@@ -18,11 +18,11 @@ const LoadCharts = ({ data }) => {
         },
         yAxis: {
           title: {
-            text: 'Value'
+            text: 'Electricity'
           }
         },
         series: [{
-          name: 'Value',
+          name: 'Date',
           data: data.map(item => item.value)
         }]
       };

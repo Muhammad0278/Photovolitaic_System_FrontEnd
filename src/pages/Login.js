@@ -94,7 +94,7 @@ const handleReset=()=>{
           <Container className='text-center'>
           <Button  style = {{marginRight:'10px', color:'white !important'}} color='primary' outlin >LogIn</Button>
        
-          <Button  outlin ><a color='primary' href="/Signup">SignUp</a></Button>
+          <Button  outlin ><a color='primary' href="/Signup" style={{textDecoration:"none",color:"white"}}>SignUp</a></Button>
           </Container>
         
       </Form>

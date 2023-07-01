@@ -19,8 +19,12 @@ const Base=({title="Welcom",children})=>{
       
         <div className="container-fluid mt-5"   p-0 m-0>
         <div className="row">
+        <CustomNavbar />
+        <div className="col-md-12" >
+        {children}
+        </div>
           <div className="col-md-2" style={{paddingLeft:0}}>
-          <CustomNavbar />
+        
         
           {/* <SideBar toggle={toggleSidebar} isOpen={sidebarIsOpen} /> */}
         
@@ -29,7 +33,7 @@ const Base=({title="Welcom",children})=>{
           </div>
           <div className="col-md-10">
             {/* Main content */}
-            {children}
+           
           </div>
         </div>
       </div>

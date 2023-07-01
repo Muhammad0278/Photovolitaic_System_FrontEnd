@@ -18,6 +18,7 @@ import UserProfile from './pages/user-routs/UserProfile';
 import Projectinfo from './pages/user-routs/Projectinfo';
 import Productinfo from './pages/user-routs/Productsinfo';
 import Topbar from './components/content/Topbar';
+import ViewProjects from './pages/user-routs/ViewProjects';
 
 
 function App() {
@@ -38,6 +39,7 @@ function App() {
          <Route path="profile-info" element={<UserProfile/>}/>
          <Route path="project-info" element={<Projectinfo/>}/>
          <Route path="product-info" element={<Productinfo/>}/>
+         <Route path="viewproject-info" element={<ViewProjects/>}/>
       </Route>
        
      

@@ -34,12 +34,48 @@ const CustomNavbar = (args) => {
   return (
     <div>
       <Navbar  color="dark" dark expand="md" fixed='top' {...args} className='px-5'>
-        <NavbarBrand href="/">My Project</NavbarBrand>
+        <NavbarBrand  href="/user/dashboard">
+       
+             PHOTOVOLATIACE
+          
+       
+          </NavbarBrand>
       
         <NavbarToggler onClick={toggle} />
         <Collapse isOpen={isOpen} navbar>
           <Nav className="me-auto" navbar>
-
+         
+          {
+            login &&
+            (
+              <>
+               <NavItem>
+            <NavLink href="/user/dashboard">
+              Home
+            </NavLink>
+          </NavItem>
+                <NavItem>
+                  <NavLink href="/user/profile-info">
+                    Profile
+                  </NavLink>
+                </NavItem>
+                <NavItem>
+                  <NavLink href="/user/project-info">
+                    Projects
+                  </NavLink>
+                </NavItem>
+                <NavItem>
+                  <NavLink href="/user/product-info">
+                    Products
+                  </NavLink>
+                </NavItem>
+                <NavItem>
+                  <NavLink href="/user/viewproject-info">
+                  View Projects
+                  </NavLink>
+                </NavItem>
+              </>
+            )}
           </Nav>
           <Nav navbar>
             {
@@ -76,7 +112,7 @@ const CustomNavbar = (args) => {
 
         </Collapse>
       </Navbar>
-      <div  className={classNames("sidebar", { "is-open": isOpen })}>
+      {/* <div  className={classNames("sidebar", { "is-open": isOpen })}>
         
         <Nav color="dark" vertical   >
         <NavbarToggler onClick={toggle} />
@@ -112,7 +148,7 @@ const CustomNavbar = (args) => {
               </>
             )}
         </Nav>
-      </div>
+      </div> */}
       {/* <SideMenu />  */}
     </div>
 

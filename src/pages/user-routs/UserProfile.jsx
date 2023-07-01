@@ -91,9 +91,10 @@ const UserProfile = () => {
 
                 </Col>
                 <Container className='text-center'>
-                  <Button color='primary' outlin>
+                  <Button color='primary' outlin style={{"margin-right":5}} >
                     Update
                   </Button>
+                  <Button color='danger'>Delete</Button>
                 </Container>
               </Row>
 

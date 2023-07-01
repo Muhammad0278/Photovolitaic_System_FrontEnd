@@ -32,12 +32,12 @@ const Userdashboards = () => {
   const [markers, setMarkers] = useState([]);
   const [items, setItems] = useState([{ label: "Loading .........", value: "" }]);
   const [loading, setLoading] = useState(true);
-  const chartData = [
-    { date: '2023-06-24', value: 10 },
-    { date: '2023-06-25', value: 5 },
-    { date: '2023-06-26', value: 8 },
-    // Add more data points as needed
-  ];
+  // const chartData = [
+  //   { date: '2023-06-24', value: 10 },
+  //   { date: '2023-06-25', value: 5 },
+  //   { date: '2023-06-26', value: 8 },
+  //   // Add more data points as needed
+  // ];
   const [data, setData] = useState({
     UserID: UserData.Id,
     UserName: UserData.UserName,ID:'',
@@ -267,25 +267,29 @@ const Userdashboards = () => {
             <h3 className='text-center'>Dashboard</h3>
           </Col>
           <Col style={{ border: '1.5px solid #cfe2ff', }} className="px-3" md={12}>
-            <Col sm={{ size: 6 }}>
+            <Col sm={{ size: 9 }}>
+            {/* <CardGroup>
+                <Card className=" m-3" color="info" inverse style={{ width: '18rem' }} >
+                  <CardHeader> Total Project </CardHeader>
+                
+                </Card>
+                <Card className="m-3" color="success" inverse style={{ width: '8rem' }} >
+                  <CardHeader>  Project InProcess  53 </CardHeader>
+                                </Card>
+                <Card className="m-3" color="success" inverse style={{ width: '18rem' }} >
+                  <CardHeader>  Project Completed <h1>53</h1> </CardHeader>
+                
+                </Card>
+              </CardGroup> */}
             </Col>
             <Row m-3>
               {/* <img src='src/Images/Q_CELLS.jpg' alt="myprofilepic"/> */}
 
               {/* <image src='src/Images/Q_CELLS.jpg'></image> */}
-              <Col md={6}>
-                {/* <CardGroup>
-                <Card className=" m-3" color="info" inverse style={{ width: '18rem' }} >
-                  <CardHeader>  Project </CardHeader>
-                  
-                </Card>
-                <Card className="m-3" color="success" inverse style={{ width: '18rem' }} >
-                  <CardHeader>  Total Products  53 </CardHeader>
-                  
-                </Card>
-              </CardGroup> */}
+              <Col md={9}>
+               
               </Col>
-              <Col md={6} className="pull-right">
+              <Col md={3} className="pull-right">
                 <Form className='' >
                   <Row className="row-cols-lg-auto align-items-center">
                     <FormGroup className="mt-3">
@@ -351,11 +355,11 @@ const Userdashboards = () => {
                                   </Col>
 
                                 </Row>
-                                <Row>
+                                {/* <Row>
                                   <Col>
                                   <LoadCharts data={chartData} />
                                   </Col>
-                                </Row>
+                                </Row> */}
 
                               </td>
                             </tr>
