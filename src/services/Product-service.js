@@ -11,6 +11,13 @@ export const GetAllProjects=(data)=>{
         }
       }).then((response)=> response.data);    
 }
+export const GetAllADProjects=(data)=>{
+    return myAxios.get('/api/Products/GetAllADProject',{
+        params: {
+           UserID: data
+        }
+      }).then((response)=> response.data);    
+}
 export const GetSelectedProducts=(data)=>{
     return myAxios.get('/api/ProductAssignment/GetSelectedProducts',{
         params: {

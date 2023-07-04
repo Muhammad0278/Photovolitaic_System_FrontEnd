@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import {Row, Col, Form, FormGroup,  Input,  ButtonGroup, Button, Table,Accordion, AccordionBody, AccordionItem, AccordionHeader } from 'reactstrap'
 import { getCurrentUserDetail } from '../../auth';
-import { GetAllProjects } from '../../services/Product-service';
+import { GetAllADProjects } from '../../services/Product-service';
 import { GetAllProductsBYProject } from '../../services/Map-service';
 import Base from '../../components/Base';
 import LoadCharts from './LoadCharts';
@@ -34,13 +34,13 @@ const ViewProjects = () => {
       //====================== Load Select Option
   function _LoadSelectProjects(UserID) {
 
-    GetAllProjects(UserID).then((resp) => {
+    GetAllADProjects(UserID).then((resp) => {
       // console.log(resp.data)
       var repsondata = JSON.parse(resp)
       if (repsondata.Code == 200) {
-        setItems(repsondata.data.map(({ ProjectID, ProjectName ,IsActive}) => ({ label: ProjectName, value: ProjectID, data: IsActive })));
+        setItems(repsondata.data.map(({ ProjectID, ProjectName ,IsActive}) => ({ label: ProjectName, value: ProjectID, Istatus: IsActive })));
         setLoading(false);
-        setData({ ...data, ProjectID: repsondata.data[0].ProjectID, ProjectName: repsondata.data[0].ProjectName })
+       // setData({ ...data, ProjectID: repsondata.data[0].ProjectID, ProjectName: repsondata.data[0].ProjectName })
       
       }
     }).catch((error) => {
@@ -67,6 +67,9 @@ const ViewProjects = () => {
         var index = event.nativeEvent.target.selectedIndex;
         let selectedtext = event.nativeEvent.target[index].text;
         setData({ ...data, ProjectID: event.target.value, ProjectName: selectedtext })
+
+       let thisitmec= event.target.itemvalue;
+       console.log(thisitmec);
       }; 
   return (
     <Base>
@@ -91,10 +94,11 @@ const ViewProjects = () => {
               value={data.ProjectID}    >
               <option disabled value=""> Select an option  </option>
               {items.map(item => (
-                <option color={item.IsActive == true ? "" : "red"}  key={item.value} value={item.value}>   {item.label}  </option>
+             
+                <option style={{color: item.Istatus == true ? "" : "red",fontWeight: item.Istatus == true ? "" : "700"  }} itemvalue= {item.Istatus}  key={item.value} value={item.value}>   {item.label} </option>
               ))}
             </Input>
-          </FormGroup>
+          </FormGroup> 
           </Col>
           <Col md={8} >
           <FormGroup>
