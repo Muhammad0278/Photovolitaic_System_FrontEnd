@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import {Row, Col, Form, FormGroup,  Input,  ButtonGroup, Button, Table,Accordion, AccordionBody, AccordionItem, AccordionHeader } from 'reactstrap'
 import { getCurrentUserDetail } from '../../auth';
 import { GetAllADProjects } from '../../services/Product-service';
-import { GetAllProductsBYProject } from '../../services/Map-service';
+import { GetAllProductsBYProject, ManualReporing } from '../../services/Map-service';
 import Base from '../../components/Base';
 import LoadCharts from './LoadCharts';
 
@@ -27,13 +27,33 @@ const ViewProjects = () => {
     useEffect(() => { (async () => await _LoadSelectProjects(UserData.Id))(); }, [])
     useEffect(() => { console.log(markers); }, [markers]);
     const onStatusChange = ((event, Status) => {
-        debugger
+        
         event.preventDefault()
+      
         _Load(Status, data);
+      });
+      const ReportOnChange = ((event, Status) => {
+        debugger
+        ManualReporing(data).then((resp) => {
+          debugger
+          // console.log(resp.data)
+          var repsondata = JSON.parse(resp)
+          if (repsondata.Code == 200) {
+             _Load(true, data);
+           // setItems(repsondata.data.map(({ ProjectID, ProjectName ,IsActive}) => ({ label: ProjectName, value: ProjectID, Istatus: IsActive })));
+           // setLoading(false);
+           // setData({ ...data, ProjectID: repsondata.data[0].ProjectID, ProjectName: repsondata.data[0].ProjectName })
+          
+          }
+        }).catch((error) => {
+          console.log('error')
+        })
+      
+       
       });
       //====================== Load Select Option
   function _LoadSelectProjects(UserID) {
-
+  
     GetAllADProjects(UserID).then((resp) => {
       // console.log(resp.data)
       var repsondata = JSON.parse(resp)
@@ -64,12 +84,19 @@ const ViewProjects = () => {
 
   }
     const handleProjectChange = (event, property) => {
+      debugger
         var index = event.nativeEvent.target.selectedIndex;
         let selectedtext = event.nativeEvent.target[index].text;
+     
         setData({ ...data, ProjectID: event.target.value, ProjectName: selectedtext })
 
-       let thisitmec= event.target.itemvalue;
-       console.log(thisitmec);
+      //  let thisitmec= event.target.itemvalue;
+      //  console.log(thisitmec);
+      const istatus = event.target[event.target.selectedIndex].getAttribute('data-status');
+       if(istatus == true)
+       {
+
+       }
       }; 
   return (
     <Base>
@@ -95,7 +122,7 @@ const ViewProjects = () => {
               <option disabled value=""> Select an option  </option>
               {items.map(item => (
              
-                <option style={{color: item.Istatus == true ? "" : "red",fontWeight: item.Istatus == true ? "" : "700"  }} itemvalue= {item.Istatus}  key={item.value} value={item.value}>   {item.label} </option>
+                <option style={{color: item.Istatus == true ? "" : "red",fontWeight: item.Istatus == true ? "" : "700"  }} data-status= {item.Istatus}  key={item.value} value={item.value}>   {item.label} </option>
               ))}
             </Input>
           </FormGroup> 
@@ -104,7 +131,7 @@ const ViewProjects = () => {
           <FormGroup>
             <ButtonGroup className="mt-3">
               <Button id="btnactive" color="success" onClick={event => onStatusChange(event, true)}>    Search </Button>
-              {/* <Button id="btndeactive" color="danger" onClick={event => onStatusChange(event, false)}>    Deactive Projects  </Button> */}
+              <Button id="btnReport" color="danger" onClick={event => ReportOnChange(event, false)}>    Generate Report  </Button>
             </ButtonGroup>
           </FormGroup>
           </Col>
