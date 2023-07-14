@@ -5,6 +5,7 @@ import { GetAllADProjects } from '../../services/Product-service';
 import { GetAllProductsBYProject, ManualReporing } from '../../services/Map-service';
 import Base from '../../components/Base';
 import LoadCharts from './LoadCharts';
+import { toast } from 'react-toastify';
 
 const ViewProjects = () => {
     const [open, setOpen] = useState('1');
@@ -37,13 +38,18 @@ const ViewProjects = () => {
         ManualReporing(data).then((resp) => {
           debugger
           // console.log(resp.data)
-          var repsondata = JSON.parse(resp)
+        var repsondata = JSON.parse(resp)
           if (repsondata.Code == 200) {
+            toast.success("Project Report Generated successfully !!");
              _Load(true, data);
            // setItems(repsondata.data.map(({ ProjectID, ProjectName ,IsActive}) => ({ label: ProjectName, value: ProjectID, Istatus: IsActive })));
            // setLoading(false);
            // setData({ ...data, ProjectID: repsondata.data[0].ProjectID, ProjectName: repsondata.data[0].ProjectName })
           
+          }
+          if (repsondata.Code == 401) {
+            _Load(true, data);
+            toast.success("Report Already Generated !!");
           }
         }).catch((error) => {
           console.log('error')
